@@ -1,0 +1,87 @@
+server:
+  servlet:
+    context-path: /mail-producer
+  port: 8001
+
+##Spring配置
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: NON_NULL
+  redis:
+    timeout: 6000ms
+    cluster:
+      max-redirects: 1000
+      nodes:
+        - 127.0.0.1:7001
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp.exmail.qq.com
+    port: 465
+    username: 123@qq.com
+    password: 123456
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 30000
+
+druid:
+  type: com.alibaba.druid.pool.DruidDataSource
+  master:
+    url: jdbc:mysql://127.0.0.1:3306/edm-mail?characterEncoding=UTF-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&useUnicode=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: mailuser
+    password: 123456
+    initialSize: 5
+    minIdle: 1
+    maxActive: 100
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: Select 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall
+    useGlobalDataSourceStat: true
+  slave:
+    url: jdbc:mysql://127.0.0.1:3306/edm-mail?characterEncoding=UTF-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&useUnicode=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: mailuser
+    password: 123456
+    initialSize: 5
+    minIdle: 1
+    maxActive: 100
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: Select 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall
+    useGlobalDataSourceStat: true
+
+mybatis:
+  type-aliases-package: com.bruce.mailproducer.entity.master
+  mapper-locations: classpath:com/bruce/mailproducer/mapping/*.xml
+
+logging:
+  level:
+    tk.mybatis: TRACE
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
