@@ -12,11 +12,14 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @auther: liujiande
@@ -49,17 +52,29 @@ public class MybatisConfiguration extends MybatisAutoConfiguration {
      * @Description 关联数据源
      * @date: 2020/3/13 5:15 PM
      */
+    @Bean
     public AbstractRoutingDataSource roundRobinDataSourceProxy() {
 
         ReadWriteSplitRoutingDataSource proxy = new ReadWriteSplitRoutingDataSource();
-        org.aspectj.apache.bcel.util.ClassLoaderRepository.SoftHashMap targetDataSource = new ClassLoaderRepository.SoftHashMap();
-        targetDataSource.put(DataBaseContextHolder.DataBaseType.MASTER,masterDataSource);
-        targetDataSource.put(DataBaseContextHolder.DataBaseType.SLAVE,slaveDataSource);
+        Map<Object, Object> mapDataSources = new HashMap<>();
+        mapDataSources.put(DataBaseContextHolder.DataBaseType.MASTER,masterDataSource);
+        mapDataSources.put(DataBaseContextHolder.DataBaseType.SLAVE,slaveDataSource);
 
         //默认数据源
         proxy.setDefaultTargetDataSource(masterDataSource);
         //装入两个主从数据源
-        proxy.setTargetDataSources(targetDataSource);
+        proxy.setTargetDataSources(mapDataSources);
         return proxy;
     }
+
+    /**
+     * @Author 刘建德
+     * @Description 配置事务管理器
+     * @date: 2020/3/16 7:02 PM
+     */
+    @Bean("txManager")
+    public DataSourceTransactionManager transactionManager(AbstractRoutingDataSource dataSource) throws Exception {
+        return new DataSourceTransactionManager(dataSource);
+    }
+
 }
